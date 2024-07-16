@@ -15,7 +15,6 @@ public class OrderController {
 
     @PostMapping
     public Order addOrder(@RequestBody Order order) {
-        order.setOrderDate(LocalDate.now());
         return orderRepository.save(order);
     }
 

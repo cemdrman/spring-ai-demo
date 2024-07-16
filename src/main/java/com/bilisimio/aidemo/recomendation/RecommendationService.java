@@ -4,10 +4,7 @@ import com.bilisimio.aidemo.order.Order;
 import com.bilisimio.aidemo.order.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.ai.chat.model.ChatModel;
-import org.springframework.ai.chat.model.ChatResponse;
-import org.springframework.ai.chat.prompt.Prompt;
-import org.springframework.ai.openai.OpenAiChatOptions;
+import org.springframework.ai.openai.OpenAiChatModel;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,24 +16,24 @@ import java.util.stream.Collectors;
 public class RecommendationService {
 
     private final OrderRepository orderRepository;
-    private final ChatModel chatModel;
+
+    private final OpenAiChatModel openAiChatModel;
 
     public String recommend() {
+
         List<Order> orders = orderRepository.findAll();
 
         String orderHistory = orders.stream()
                 .map(Order::getProductName)
                 .collect(Collectors.joining(", "));
 
-        String prompt = "Based on the following order history: " + orderHistory + ", suggest some products.";
+        String prompt = "I'm a software engineer. Based on my following order history: " + orderHistory
+                + ", can you suggest 10 new products that I might like and explain why you recommend each of them? "
+                + "Please consider my preferences and previous purchases. Please give me recommend in Turkish";
 
-        ChatResponse response = chatModel.call(new Prompt(prompt,
-                OpenAiChatOptions.builder()
-                        .withModel("gpt-4.o")
-                        .build()));
-        log.info(response.toString());
-        return response.getResult().getOutput().toString();
+        String response = openAiChatModel.call(prompt);
+        log.info(response);
+        return response;
     }
-
 
 }
